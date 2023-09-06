@@ -1,1 +1,1 @@
-export {default} from "./CarCard";
+export {default} from "./Filters";
