@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
 import { fetchCars, limit } from "../../services/API";
-import Filters from "../../components/Filters";
+import Filterbar from "../../components/Filterbar";
 import Gallery from "../../components/Gallery";
 
-
-const Catalog = () => {
-  const [cars, setCars] = useState([]);
+const Catalog = ({ cars, setCars, favoriteToggle }) => {
   const [page, setPage] = useState(1);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -17,7 +15,13 @@ const Catalog = () => {
     const fetchData = async () => {
       try {
         const res = await fetchCars(page);
-        setCars([...cars, ...res.data]);
+        const favoritedCars = res.data.map((car) => ({
+          ...car,
+          favorite: false,
+        }));
+
+        setCars(favoritedCars);
+        console.log(cars);
       } catch (error) {
         setError(ERROR_MSG);
       } finally {
@@ -26,14 +30,19 @@ const Catalog = () => {
       }
     };
     fetchData();
-  }, [page, cars]);
+  }, [page]);
 
   return (
     <>
-      <Filters />
-      <Gallery cars={cars} />
+      <Filterbar />
+      <Gallery cars={cars} setFavorite={favoriteToggle} />
       {cars.length > 0 && cars.length % limit === 0 && (
-        <button type="button" onClick={() => setPage(page + 1)}>
+        <button
+          type="button"
+          onClick={() => {
+            setPage(page + 1);
+          }}
+        >
           Load more
         </button>
       )}

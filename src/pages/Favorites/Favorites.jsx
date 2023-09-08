@@ -1,11 +1,13 @@
-import Filters from "../../components/Filters";
+import Filterbar from "../../components/Filterbar";
 import Gallery from "../../components/Gallery";
 
-const Favorites = () => {
+const Favorites = ({ cars, setCars, favoriteToggle }) => {
+  const favoriteCars = cars.filter((car) => car.favorite === true);
+
   return (
     <>
-      <Filters />
-      <Gallery />
+      <Filterbar />
+      <Gallery cars={favoriteCars} setFavorite={favoriteToggle} />
     </>
   );
 };
