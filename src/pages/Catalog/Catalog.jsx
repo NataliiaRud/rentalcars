@@ -1,53 +1,63 @@
 import { useEffect, useState } from "react";
-import { fetchCars, limit } from "../../services/API";
-import Filterbar from "../../components/Filterbar";
+import { fetchAPI, limit } from "../../services/API";
+import PropTypes from "prop-types";
 import Gallery from "../../components/Gallery";
+import Loader from "../../components/Loader";
+import { Container, Button } from "./Catalog.styled";
 
 const Catalog = ({ cars, setCars, favoriteToggle }) => {
   const [page, setPage] = useState(1);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
 
   const ERROR_MSG = "Error happend";
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetchCars(page);
+        setIsLoading(true);
+        const favoriteCars = localStorage.getItem("favs")
+          ? JSON.parse(localStorage.getItem("favs")).map((fav) => fav.id)
+          : [];
+        const res = await fetchAPI(page);
         const favoritedCars = res.data.map((car) => ({
           ...car,
-          favorite: false,
+          favorite: favoriteCars.includes(car.id) ? true : false,
         }));
 
-        setCars(favoritedCars);
-        console.log(cars);
+        setCars((prev) => [...prev, ...favoritedCars]);
       } catch (error) {
         setError(ERROR_MSG);
       } finally {
         setIsLoading(false);
-        setIsLoaded(true);
       }
     };
     fetchData();
-  }, [page]);
+  }, [page, setCars]);
 
   return (
-    <>
-      <Filterbar />
+    <Container>
+      {isLoading && <Loader />}
+      {error && <div>Error happend</div>}
       <Gallery cars={cars} setFavorite={favoriteToggle} />
       {cars.length > 0 && cars.length % limit === 0 && (
-        <button
+        <Button
           type="button"
           onClick={() => {
             setPage(page + 1);
           }}
         >
           Load more
-        </button>
+        </Button>
       )}
-    </>
+    </Container>
   );
+};
+
+Catalog.propTypes = {
+  cars: PropTypes.array.isRequired,
+  setCars: PropTypes.func.isRequired,
+  favoriteToggle: PropTypes.func.isRequired,
 };
 
 export default Catalog;

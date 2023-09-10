@@ -1,6 +1,7 @@
-import { Route, Routes } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { Route, Routes, Navigate } from "react-router-dom";
+import { useState } from "react";
 import { lazy, Suspense } from "react";
+import { GlobalStyle } from "./GlobalStyle";
 import Loader from "./Loader";
 
 const Home = lazy(() => import("../pages/Home"));
@@ -19,6 +20,8 @@ export const App = () => {
       favorite: car.id === id ? !car.favorite : car.favorite,
     }));
     setCars(updatedCars);
+    const favoriteCars = updatedCars.filter((car) => car.favorite === true);
+    localStorage.setItem("favs", JSON.stringify(favoriteCars));
   };
 
   return (
@@ -27,7 +30,7 @@ export const App = () => {
         <Route path="/" element={<Sidebar />}>
           <Route index element={<Home />} />
           <Route
-            path="cars"
+            path="/cars"
             element={
               <Catalog
                 cars={cars}
@@ -37,17 +40,13 @@ export const App = () => {
             }
           />
           <Route
-            path="favorites"
-            element={
-              <Favorites
-                cars={cars}
-                setCars={setCars}
-                favoriteToggle={favoriteToggle}
-              />
-            }
+            path="/favorites"
+            element={<Favorites cars={cars} favoriteToggle={favoriteToggle} />}
           />
         </Route>
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
+      <GlobalStyle />
     </Suspense>
   );
 };
