@@ -1,15 +1,62 @@
 import { useCallback, useEffect } from "react";
 import { createPortal } from "react-dom";
+import PropTypes from "prop-types";
+import { formatNumber } from "../../services/formatNumber";
 import {
   Backdrop,
-  CloseButton,
+  Modal,
   ModalContainer,
-  MyCloseIcon,
-} from "./Modal.styled";
+  ImageWrap,
+  Image,
+  Title,
+  Description,
+  DescriptionText,
+  FunctionalitiesWrap,
+  SubTitle,
+  Wrap,
+  FunctionalitiesDescription,
+  ConditionsWrap,
+  ConditionText,
+  CardButton,
+  CloseButton,
+} from "./CarModal.styled";
+import icon from "../../images/svg/sprite.svg";
 
 const modalRoot = document.querySelector("#modal-root");
 
-const Modal = ({ car, onCloseModal }) => {
+const CarModal = ({ car, onCloseModal }) => {
+  const {
+    id,
+    address,
+    fuelConsumption,
+    type,
+    model,
+    img,
+    make,
+    year,
+    engineSize,
+    description,
+    accessories,
+    functionalities,
+    rentalConditions,
+    mileage,
+    rentalPrice,
+  } = car;
+
+  const descriptionScheme = [
+    address.split(", ")[1],
+    address.split(", ")[2],
+    `Id: ${id}`,
+    `Year: ${year}`,
+    `Type: ${type.charAt(0).toUpperCase()}${type.slice(1).toLowerCase()}`,
+    `Fuel Consumption: ${fuelConsumption}`,
+    `Engine Size: ${engineSize}`,
+  ];
+
+  const phoneNumber = "+380730000000";
+  const personeConditions = rentalConditions.split("\n");
+  const personAge = personeConditions[0].split(": ")[1];
+
   const onEsc = useCallback(
     (event) => {
       if (event.code === "Escape") onCloseModal();
@@ -33,15 +80,59 @@ const Modal = ({ car, onCloseModal }) => {
 
   return createPortal(
     <Backdrop onClick={handleBackdropClick}>
-      <ModalContainer>
-        <div>Car modal {car.id}</div>
-        <CloseButton onClick={onCloseModal}>
-          <MyCloseIcon></MyCloseIcon>
-        </CloseButton>
-      </ModalContainer>
+      <Modal>
+        <ModalContainer>
+          <CloseButton onClick={onCloseModal}>
+            <svg className="icon">
+              <use href={`${icon}#icon-close`}></use>
+            </svg>
+          </CloseButton>
+          <ImageWrap>
+            <Image src={img} alt={`${make} ${model}`} />
+          </ImageWrap>
+          <Title>
+            {make} <span className="accent">{model}</span>, {year}
+          </Title>
+          <Description>{descriptionScheme.join(" | ")}</Description>
+          <DescriptionText>{description}</DescriptionText>
+          <Wrap>
+            <SubTitle>Accessories and functionalities:</SubTitle>
+            <FunctionalitiesWrap>
+              <FunctionalitiesDescription>
+                {accessories.join(" | ")}
+              </FunctionalitiesDescription>
+              <FunctionalitiesDescription>
+                {functionalities.join(" | ")}
+              </FunctionalitiesDescription>
+            </FunctionalitiesWrap>
+          </Wrap>
+          <Wrap>
+            <SubTitle>Rental Conditions:</SubTitle>
+            <ConditionsWrap>
+              <ConditionText>
+                Minimum age: <span>{personAge}</span>
+              </ConditionText>
+              <ConditionText>{personeConditions[1]}</ConditionText>
+              <ConditionText>{personeConditions[2]}</ConditionText>
+              <ConditionText>
+                Mileage: <span>{formatNumber(mileage)}</span>
+              </ConditionText>
+              <ConditionText>
+                Price: <span>{rentalPrice.slice(1)}$</span>
+              </ConditionText>
+            </ConditionsWrap>
+          </Wrap>
+          <CardButton href={`tel:${phoneNumber}`}>Rental car</CardButton>
+        </ModalContainer>
+      </Modal>
     </Backdrop>,
     modalRoot
   );
 };
 
-export default Modal;
+CarModal.propTypes = {
+  car: PropTypes.object.isRequired,
+  onCloseModal: PropTypes.func.isRequired,
+};
+
+export default CarModal;
