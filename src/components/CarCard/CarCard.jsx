@@ -1,6 +1,6 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
-import CarModal from "../CarModal/CarModal";
+import CarModal from "../Modal/Modal";
 import icon from "../../images/svg/sprite.svg";
 import {
   CardWrap,
